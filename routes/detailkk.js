@@ -3,15 +3,17 @@ const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const connection = require('../config/db');
 
-// Get all DetailKK
 router.get('/', (req, res) => {
-    connection.query('SELECT * FROM DetailKK', (err, rows) => {
+    connection.query('SELECT DetailKK.id_detail, DetailKK.no_kk, DetailKK.nik, DetailKK.status_hubungan_dalam_keluarga, ktp.nama_lengkap AS ayah, ktp2.nama_lengkap AS ibu FROM DetailKK LEFT JOIN ktp ON DetailKK.ayah = ktp.nik LEFT JOIN ktp AS ktp2 ON DetailKK.ibu = ktp2.nik', (err, rows) => {
         if (err) {
+            console.error('Error retrieving DetailKK data:', err);
             return res.status(500).json({ status: false, message: 'Server Error' });
         }
+        console.log('DetailKK data retrieved successfully');
         return res.status(200).json({ status: true, message: 'Data DetailKK', data: rows });
     });
 });
+
 
 // Create DetailKK
 router.post('/', [
@@ -24,6 +26,7 @@ router.post('/', [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+        console.error('Validation errors:', errors.array());
         return res.status(422).json({ errors: errors.array() });
     }
 
@@ -37,8 +40,10 @@ router.post('/', [
 
     connection.query('INSERT INTO DetailKK SET ?', data, (err, result) => {
         if (err) {
+            console.error('Error creating DetailKK:', err);
             return res.status(500).json({ status: false, message: 'Server Error' });
         }
+        console.log('DetailKK created successfully');
         return res.status(201).json({ status: true, message: 'DetailKK has been created!', data: result });
     });
 });
@@ -54,6 +59,7 @@ router.put('/:id_detail', [
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
+        console.error('Validation errors:', errors.array());
         return res.status(422).json({ errors: errors.array() });
     }
 
@@ -68,8 +74,10 @@ router.put('/:id_detail', [
 
     connection.query('UPDATE DetailKK SET ? WHERE id_detail = ?', [data, id_detail], (err, result) => {
         if (err) {
+            console.error('Error updating DetailKK:', err);
             return res.status(500).json({ status: false, message: 'Server Error' });
         }
+        console.log('DetailKK updated successfully');
         return res.status(200).json({ status: true, message: 'DetailKK has been updated!', data: result });
     });
 });
@@ -82,10 +90,9 @@ router.delete('/:id_detail', (req, res) => {
             console.error('Error deleting DetailKK:', err);
             return res.status(500).json({ status: false, message: 'Server Error' });
         }
+        console.log('DetailKK deleted successfully');
         return res.status(200).json({ status: true, message: 'DetailKK has been deleted!', data: result });
     });
 });
-
-
 
 module.exports = router;
