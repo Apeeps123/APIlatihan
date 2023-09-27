@@ -4,7 +4,7 @@ const { body, validationResult } = require('express-validator');
 const connection = require('../config/db');
 
 router.get('/', (req, res) => {
-    connection.query('SELECT DetailKK.id_detail, DetailKK.no_kk, DetailKK.nik, DetailKK.status_hubungan_dalam_keluarga, ktp.nama_lengkap AS ayah, ktp2.nama_lengkap AS ibu FROM DetailKK LEFT JOIN ktp ON DetailKK.ayah = ktp.nik LEFT JOIN ktp AS ktp2 ON DetailKK.ibu = ktp2.nik', (err, rows) => {
+    connection.query('SELECT DetailKK.id_detail, DetailKK.no_kk, ktp_nama.nama_lengkap AS nama, DetailKK.status_hubungan_dalam_keluarga, ktp_ayah.nama_lengkap AS ayah, ktp_ibu.nama_lengkap AS ibu FROM DetailKK LEFT JOIN ktp AS ktp_nama ON DetailKK.nik = ktp_nama.nik LEFT JOIN ktp AS ktp_ayah ON DetailKK.ayah = ktp_ayah.nik LEFT JOIN ktp AS ktp_ibu ON DetailKK.ibu = ktp_ibu.nik', (err, rows) => {
         if (err) {
             console.error('Error retrieving DetailKK data:', err);
             return res.status(500).json({ status: false, message: 'Server Error' });
@@ -15,7 +15,6 @@ router.get('/', (req, res) => {
 });
 
 
-// Create DetailKK
 router.post('/', [
     body('no_kk').notEmpty(),
     body('nik').notEmpty(),
